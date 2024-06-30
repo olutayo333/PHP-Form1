@@ -1,16 +1,24 @@
 <?php
     require 'connection.php';
     session_start();
-
     if(isset($_POST['submit']))
     {
         $email = $_POST['email']; $password = $_POST['password'];
-        $query = "SELECT * FROM table1 WHERE email = '$email' ";
-        $found = $connect->query($query);
+        // $query = "SELECT * FROM table1 WHERE email = '$email' ";
+        // $found = $connect->query($query);
+        
+        //PREPARED STATEMENT
+        $query="SELECT * FROM table1 WHERE email=?";
+        $prepare = $connect->prepare($query);
+        $prepare->bind_param('s',$email);
+        $found = $prepare->execute();
         
         if($found){
-            if($found->num_rows>0){
-                $user=$found->fetch_assoc();
+            //print_r($found);
+            $fetchobj=$prepare->get_result();
+            // print_r($fetchobj)
+            if($fetchobj->num_rows>0){
+                $user=$fetchobj->fetch_assoc();
                 $hashedPassword= $user['password'];
                 $verify=password_verify($password, $hashedPassword);
                 if($verify){
@@ -30,6 +38,7 @@
         else{
             $_SESSION['response2']="Request Not Successful" ;//echo 'Request not executed';
         }
+        
     }
 ?>
 

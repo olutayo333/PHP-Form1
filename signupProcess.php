@@ -21,12 +21,19 @@
                      $hashedPassword = password_hash($password, PASSWORD_DEFAULT); echo $hashedPassword;
     
                     echo "<br>";
-                    $query="INSERT INTO `table1`( `firstName`,`lastName`,`email`,`password`,`address` ) VALUES ( '$firstName', '$lastName', '$email', '$hashedPassword', '$address'  )" ;
-                    $dbconnection = $connect->query($query);
-
+                    //$query="INSERT INTO `table1`( `firstName`,`lastName`,`email`,`password`,`address` ) VALUES ( '$firstName', '$lastName', '$email', '$hashedPassword', '$address'  )" ;
+                    //$dbconnection = $connect->query($query);
+                    
+                    //PREPARED STATEMENT
+                    $query = "INSERT INTO `table1` ( `firstName`,`lastName`,`email`,`password`,`address` ) VALUES (?,?,?,?,?)" ;                    
+                    $prepare =$connect->prepare($query);
+                    $prepare->bind_param('sssss', $firstName, $lastName, $email, $hashedPassword, $address );
+                    $dbconnection=$prepare->execute();
+                    
                     if($dbconnection){
                         //echo "Registration Successful";
                         $_SESSION['response'] = 'Registration Successful '; 
+                        header('location:login.php');
                     }
                     else{
                         echo "</br>";
